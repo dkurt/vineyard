@@ -48,7 +48,7 @@ RUN cd /opencv && \
         -DOPENCV_CONFIG_INSTALL_PATH="cmake" \
         -DCMAKE_TOOLCHAIN_FILE="../platforms/linux/arm-gnueabi.toolchain.cmake" \
         -DWITH_IPP=OFF \
-        -DBUILD_TESTS=OFF \
+        -DBUILD_TESTS=ON \
         -DBUILD_PERF_TESTS=OFF \
         -DOPENCV_ENABLE_PKG_CONFIG=ON \
         # Python flags
@@ -63,10 +63,29 @@ RUN cd /opencv && \
         -DInferenceEngine_DIR=/openvino/build \
         -Dngraph_DIR=/openvino/build/ngraph \
         -DINF_ENGINE_RELEASE=2021010000 \
-        -DBUILD_LIST=dnn,python3 \
+        -DBUILD_LIST=ts,dnn,python3 \
         .. && make --jobs=$(nproc --all) && make install
 
-RUN mv /openvino/bin/armv7l/Release/lib/*.so /opencv_install/lib/ && \
-    mv /openvino/bin/armv7l/Release/lib/*.mvcmd /opencv_install/lib/ && \
-    mv /openvino/bin/armv7l/Release/lib/plugins.xml /opencv_install/lib/ && \
-    tar -cvzf opencv_debian10_armhf.tar.gz /opencv_install
+# Prepare a package
+RUN mkdir openvino_debian10_armhf && cd openvino_debian10_armhf && \
+    # Create folders structure
+    mkdir bin && \
+    mkdir -p deployment_tools/inference_engine/lib/ && \
+    mkdir -p deployment_tools/ngraph/lib && \
+    mkdir -p python && \
+    mkdir install_dependencies && \
+    ln -s deployment_tools/inference_engine inference_engine && \
+    # Copy the files
+    cp -r /opencv_install opencv && \
+    cp /openvino/scripts/setupvars/setupvars.sh bin && \
+    cp /openvino/scripts/install_dependencies/install_NCS_udev_rules.sh install_dependencies && \
+    cp /openvino/scripts/install_dependencies/install_openvino_dependencies.sh install_dependencies && \
+    cp -r /opencv_install/lib/python3.7/dist-packages python/python3 && \
+    cp -r /openvino/inference-engine/include deployment_tools/inference_engine && \
+    rm /openvino/bin/armv7l/Release/lib/*.a && \
+    cp -r /openvino/bin/armv7l/Release/lib deployment_tools/inference_engine/lib/armv7l && \
+    mv deployment_tools/inference_engine/lib/armv7l/libngraph* deployment_tools/ngraph/lib && \
+    mv deployment_tools/inference_engine/lib/armv7l/libinterpreter_backend.so deployment_tools/ngraph/lib
+
+RUN tar -cvzf openvino_debian10_armhf.tar.gz openvino_debian10_armhf/*
+RUN tar -cvzf opencv_debian10_armhf_tests.tar.gz /opencv/build/bin/opencv_test*
