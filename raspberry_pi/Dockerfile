@@ -24,7 +24,7 @@ RUN dpkg --add-architecture armhf && \
     python3-numpy
 
 # Clone repositories
-RUN git clone https://github.com/opencv/opencv/ --depth 1
+RUN git clone -b dnn_fix_ngraph_master https://github.com/dkurt/opencv/ --depth 1
 RUN git clone https://github.com/openvinotoolkit/openvino/ --depth 1 --recursive
 
 # Build Inference Engine
@@ -63,7 +63,6 @@ RUN cd /opencv && \
         -DInferenceEngine_DIR=/openvino/build \
         -Dngraph_DIR=/openvino/build/ngraph \
         -DINF_ENGINE_RELEASE=2021010000 \
-        -DBUILD_LIST=ts,dnn,python3 \
         .. && make --jobs=$(nproc --all) && make install
 
 # Prepare a package
