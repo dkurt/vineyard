@@ -7,6 +7,8 @@ name: CI
 on:
   push:
     branches: [ master ]
+  pull_request:
+    branches: [ master ]
   schedule:
     - cron: "0 10 * * *"  # Run every day on 10:00 UTC
 
@@ -49,6 +51,11 @@ jobs:
         run: |
           tar -xf openvino_debian10_armhf.tar.gz
           tar -xf opencv_debian10_armhf_tests.tar.gz
+
+      - name: Synchronize test data
+        run: |
+          cd $HOME/opencv_extra
+          git pull origin HEAD
 
       # Type "ulimit -s unlimited" to solve "Resource temporarily unavailable"
       - name: Run tests

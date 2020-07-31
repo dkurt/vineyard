@@ -63,7 +63,6 @@ RUN cd /opencv && \
         -DInferenceEngine_DIR=/openvino/build \
         -Dngraph_DIR=/openvino/build/ngraph \
         -DINF_ENGINE_RELEASE=2021010000 \
-        -DBUILD_LIST=ts,dnn,python3 \
         .. && make --jobs=$(nproc --all) && make install
 
 # Prepare a package
