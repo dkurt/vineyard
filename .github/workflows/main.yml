@@ -7,6 +7,8 @@ name: CI
 on:
   push:
     branches: [ master ]
+  pull_request:
+    branches: [ master ]
   schedule:
     - cron: "0 22 * * *"  # Runs at 22:00 UTC every day
 
@@ -27,7 +29,6 @@ jobs:
       run: |
         docker build raspberry_pi -t vineyard_rpi
         docker run -v $(pwd):/mnt vineyard_rpi sh -c "cp *.tar.gz /mnt"
-
     - name: Upload binaries
       uses: actions/upload-artifact@v2
       with:
@@ -35,7 +36,6 @@ jobs:
         path: |
           openvino_debian10_armhf.tar.gz
           opencv_debian10_armhf_tests.tar.gz
-
   test:
     needs: build
     runs-on: self-hosted
@@ -47,14 +47,13 @@ jobs:
 
       - name: Unpack
         run: |
+          echo Hello
           tar -xf openvino_debian10_armhf.tar.gz
           tar -xf opencv_debian10_armhf_tests.tar.gz
-
       - name: Synchronize test data
         run: |
           cd $HOME/opencv_extra
           git pull origin HEAD
-
       # Type "ulimit -s unlimited" to solve "Resource temporarily unavailable"
       - name: Run tests
         run: |
