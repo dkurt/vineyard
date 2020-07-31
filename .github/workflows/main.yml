@@ -7,6 +7,8 @@ name: CI
 on:
   push:
     branches: [ master ]
+  pull_request:
+    branches: [ master ]
   schedule:
     - cron: "0 22 * * *"  # Runs at 22:00 UTC every day
 
@@ -20,41 +22,38 @@ jobs:
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
     # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-    - uses: actions/checkout@v2
+    - uses: dkurt/checkout@v2
 
     # Runs a single command using the runners shell
     - name: Build
       run: |
         docker build raspberry_pi -t vineyard_rpi
         docker run -v $(pwd):/mnt vineyard_rpi sh -c "cp *.tar.gz /mnt"
-
     - name: Upload binaries
-      uses: actions/upload-artifact@v2
+      uses: dkurt/upload-artifact@v2
       with:
         name: openvino_debian10_armhf
         path: |
           openvino_debian10_armhf.tar.gz
           opencv_debian10_armhf_tests.tar.gz
-
   test:
     needs: build
     runs-on: self-hosted
     steps:
       - name: Download binaries
-        uses: actions/download-artifact@v2
+        uses: dkurt/download-artifact@v2
         with:
           name: openvino_debian10_armhf
 
       - name: Unpack
         run: |
+          echo Hello
           tar -xf openvino_debian10_armhf.tar.gz
           tar -xf opencv_debian10_armhf_tests.tar.gz
-
       - name: Synchronize test data
         run: |
           cd $HOME/opencv_extra
           git pull origin HEAD
-
       # Type "ulimit -s unlimited" to solve "Resource temporarily unavailable"
       - name: Run tests
         run: |
