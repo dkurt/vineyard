@@ -20,7 +20,7 @@ jobs:
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
     # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-    - uses: actions/checkout@v2
+    - uses: dkurt/checkout@v2
 
     # Runs a single command using the runners shell
     - name: Build
@@ -29,19 +29,18 @@ jobs:
         docker run -v $(pwd):/mnt vineyard_rpi sh -c "cp *.tar.gz /mnt"
 
     - name: Upload binaries
-      uses: actions/upload-artifact@v2
+      uses: dkurt/upload-artifact@v2
       with:
         name: openvino_debian10_armhf
         path: |
           openvino_debian10_armhf.tar.gz
           opencv_debian10_armhf_tests.tar.gz
-
   test:
     needs: build
     runs-on: self-hosted
     steps:
       - name: Download binaries
-        uses: actions/download-artifact@v2
+        uses: dkurt/download-artifact@v2
         with:
           name: openvino_debian10_armhf
 
