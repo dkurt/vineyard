@@ -47,6 +47,7 @@ jobs:
 
       - name: Unpack
         run: |
+          echo Hello
           tar -xf openvino_debian10_armhf.tar.gz
           tar -xf opencv_debian10_armhf_tests.tar.gz
 
