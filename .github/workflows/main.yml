@@ -7,6 +7,8 @@ name: CI
 on:
   push:
     branches: [ master ]
+  pull_request:
+    branches: [ master ]
   schedule:
     - cron: "0 22 * * *"  # Runs at 22:00 UTC every day
 
