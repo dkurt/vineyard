@@ -25,7 +25,7 @@ RUN dpkg --add-architecture armhf && \
     cython
 
 # Clone repositories
-RUN git clone -b dnn_fix_ngraph_conv https://github.com/dkurt/opencv/ --depth 1
+RUN git clone https://github.com/opencv/opencv/ --depth 1
 RUN git clone https://github.com/openvinotoolkit/openvino/ --depth 1 --recursive
 
 # Build Inference Engine
