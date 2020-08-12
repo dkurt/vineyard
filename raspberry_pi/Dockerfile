@@ -21,7 +21,8 @@ RUN dpkg --add-architecture armhf && \
     python3-pip \
     python-minimal \
     python-argparse \
-    python3-numpy
+    python3-numpy \
+    cython
 
 # Clone repositories
 RUN git clone https://github.com/opencv/opencv/ --depth 1
@@ -37,6 +38,10 @@ RUN cd /openvino && \
         -DENABLE_SSE42=OFF \
         -DTHREADING=SEQ \
         -DENABLE_OPENCV=OFF \
+        -DENABLE_PYTHON=ON \
+        -DPYTHON_EXECUTABLE=$(which python3.7) \
+        -DPYTHON_LIBRARY=/usr/lib/arm-linux-gnueabihf/libpython3.7m.so \
+        -DPYTHON_INCLUDE_DIR=/usr/include/python3.7 \
         -DENABLE_GNA=OFF .. && make --jobs=$(nproc --all)
 
 # Build OpenCV
@@ -83,6 +88,8 @@ RUN mkdir openvino_debian10_armhf && cd openvino_debian10_armhf && \
     cp -r /openvino/inference-engine/include deployment_tools/inference_engine && \
     rm /openvino/bin/armv7l/Release/lib/*.a && \
     cp -r /openvino/bin/armv7l/Release/lib deployment_tools/inference_engine/lib/armv7l && \
+    mv deployment_tools/inference_engine/lib/armv7l/python_api/* python && \
+    rm -r deployment_tools/inference_engine/lib/armv7l/python_api/ && \
     mv deployment_tools/inference_engine/lib/armv7l/libngraph* deployment_tools/ngraph/lib && \
     mv deployment_tools/inference_engine/lib/armv7l/libinterpreter_backend.so deployment_tools/ngraph/lib
 
