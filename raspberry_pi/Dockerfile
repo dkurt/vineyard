@@ -25,8 +25,14 @@ RUN dpkg --add-architecture armhf && \
     cython
 
 # Clone repositories
-RUN git clone https://github.com/opencv/opencv/ --depth 1
-RUN git clone https://github.com/openvinotoolkit/openvino/ --depth 1 --recursive
+RUN git clone -b vpu_debug https://github.com/dkurt/opencv/ --depth 1
+RUN git clone https://github.com/openvinotoolkit/openvino/ && \
+    cd openvino && \
+    git checkout c518667e0a38a85ba36e0f7eab7b11cd8be82d0f && \
+    # git checkout dc89cb1627d6e511e75d2363e96ebdfdba3cb6cf && \
+    # git checkout 8c118ef8b2517aff2fed1506a0c112d09a037dcf && \
+    git submodule init && \
+    git submodule update --recursive
 
 # Build Inference Engine
 RUN cd /openvino && \

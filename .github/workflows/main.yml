@@ -7,6 +7,8 @@ name: CI
 on:
   push:
     branches: [ master ]
+  pull_request:
+    branches: [ master ]
   schedule:
     - cron: "0 22 * * *"  # Runs at 22:00 UTC every day
 
@@ -52,9 +54,6 @@ jobs:
       - name: Synchronize test data
         run: |
           cd $HOME/opencv_extra
-          git pull origin HEAD
-          cd testdata/dnn
-          python download_models.py
 
       # Type "ulimit -s unlimited" to solve "Resource temporarily unavailable"
       - name: Run tests
