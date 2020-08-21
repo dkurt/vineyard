@@ -29,7 +29,8 @@ RUN git clone -b vpu_debug https://github.com/dkurt/opencv/ --depth 1
 RUN git clone https://github.com/openvinotoolkit/openvino/ && \
     cd openvino && \
     # git checkout c518667e0a38a85ba36e0f7eab7b11cd8be82d0f && \ # OK
-    git checkout 8c118ef8b2517aff2fed1506a0c112d09a037dcf && \
+    # git checkout 8c118ef8b2517aff2fed1506a0c112d09a037dcf && \ # OK
+    git checkout e2e2785131dc005cee6ccd94a8aac416d66d27a3 && \
     git submodule init && \
     git submodule update --recursive
 
