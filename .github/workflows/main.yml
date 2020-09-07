@@ -7,6 +7,8 @@ name: CI
 on:
   push:
     branches: [ master ]
+  pull_request:
+    branches: [ master ]
   schedule:
     - cron: "0 22 * * *"  # Runs at 22:00 UTC every day
 
@@ -64,4 +66,6 @@ jobs:
           source openvino_debian10_armhf/bin/setupvars.sh
           cd opencv/build
           ulimit -s unlimited
+          ulimit -Sn unlimited
+          ulimit -Sl unlimited
           ./bin/opencv_test_dnn --gtest_param_filter=*MYRIAD*
