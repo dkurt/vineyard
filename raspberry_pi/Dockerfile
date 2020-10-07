@@ -39,6 +39,7 @@ RUN cd /openvino && \
         -DTHREADING=SEQ \
         -DENABLE_OPENCV=OFF \
         -DENABLE_PYTHON=ON \
+        -DNGRAPH_ONNX_IMPORT_ENABLE=OFF \
         -DPYTHON_EXECUTABLE=$(which python3.7) \
         -DPYTHON_LIBRARY=/usr/lib/arm-linux-gnueabihf/libpython3.7m.so \
         -DPYTHON_INCLUDE_DIR=/usr/include/python3.7 \
