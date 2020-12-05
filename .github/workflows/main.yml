@@ -36,9 +36,9 @@ jobs:
           openvino_debian10_armhf.tar.gz
           opencv_debian10_armhf_tests.tar.gz
   test:
+    if: ${{ false }}
     needs: build
     runs-on: self-hosted
-    if: ${{ false }}
     steps:
       - name: Download binaries
         uses: actions/download-artifact@v2
