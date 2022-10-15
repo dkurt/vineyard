@@ -1,0 +1,45 @@
+name: Build for RISC-V
+
+on:
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Clone
+      run: |
+        git clone https://github.com/riscv-collab/riscv-gnu-toolchain --depth 1
+        git clone --recurse-submodules -j$(nproc --all) https://github.com/openvinotoolkit/openvino --depth 1 -b releases/2022/2
+
+    - name: Build toolchain
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y --no-install-recommends autoconf automake autotools-dev curl python3 libmpc-dev libmpfr-dev libgmp-dev gawk build-essential bison flex texinfo gperf libtool patchutils bc zlib1g-dev libexpat-dev
+        ./configure --prefix=/opt/riscv
+        sudo make linux -j$(nproc --all)
+      working-directory: riscv-gnu-toolchain
+
+    - name: Install libusb
+      run: |
+        sudo dpkg --add-architecture riscv64
+        sudo sed -i -E 's|^deb ([^ ]+) (.*)$|deb [arch=amd64] \1 \2\ndeb [arch=riscv64] http://ports.ubuntu.com/ubuntu-ports/ \2|' /etc/apt/sources.list
+        sudo apt-get update
+        sudo apt-get install -y --no-install-recommends libusb-1.0-0-dev:riscv64
+
+    - name: Build OpenVINO
+      run: |
+        export PKG_CONFIG_PATH=/lib/riscv64-linux-gnu/pkgconfig/
+        cmake \
+          -DCMAKE_TOOLCHAIN_FILE=$(realpath riscv64.toolchain.cmake) \
+          -DTHREADING=SEQ \
+          -DENABLE_OPENCV=OFF \
+          -DENABLE_PYTHON=OFF \
+          -DENABLE_SAMPLES=OFF \
+          -S openvino -B openvino_build
+        
+        cmake --build openvino_build -j$(nproc --all)
+        cmake --install openvino_build --prefix openvino_install
+
