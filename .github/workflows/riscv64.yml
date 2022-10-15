@@ -31,9 +31,10 @@ jobs:
 
     - name: Build OpenVINO
       run: |
-        export PKG_CONFIG_PATH=/lib/riscv64-linux-gnu/pkgconfig/
         cmake \
           -DCMAKE_TOOLCHAIN_FILE=$(realpath riscv64.toolchain.cmake) \
+          -DLIBUSB_LIBRARY=/usr/lib/riscv64-linux-gnu/libusb-1.0.so \
+          -DLIBUSB_INCLUDE_DIR=/usr/include/libusb-1.0 \
           -DTHREADING=SEQ \
           -DENABLE_OPENCV=OFF \
           -DENABLE_PYTHON=OFF \
@@ -42,4 +43,10 @@ jobs:
         
         cmake --build openvino_build -j$(nproc --all)
         cmake --install openvino_build --prefix openvino_install
+        zip openvino-2022.2-linux-riscv64.zip -r openvino_install/*
 
+    - name: Upload
+      uses: actions/upload-artifact@v2
+      with:
+        name: "openvino_riscv64"
+        path: "openvino*.zip"
