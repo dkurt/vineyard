@@ -5,7 +5,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
     - uses: actions/checkout@v2
 
@@ -35,8 +35,6 @@ jobs:
 
     - name: Build OpenVINO
       run: |
-        sudo sed -i -E 's|riscv64-linux-gnu/python3.8/pyconfig.h|/usr/include/riscv64-linux-gnu/python3.8/pyconfig.h|' /usr/include/python3.8/pyconfig.h
-
         cmake \
           -DCMAKE_TOOLCHAIN_FILE=$(realpath riscv64.toolchain.cmake) \
           -DLIBUSB_LIBRARY=/usr/lib/riscv64-linux-gnu/libusb-1.0.so \
@@ -45,9 +43,9 @@ jobs:
           -DENABLE_OPENCV=OFF \
           -DENABLE_PYTHON=ON \
           -DENABLE_SAMPLES=OFF \
-          -DPYTHON_INCLUDE_DIR=/usr/include/python3.8 \
+          -DPYTHON_INCLUDE_DIR=/usr/include/python3.10 \
           -DPYTHON_MODULE_EXTENSION=".so" \
-          -DPYTHON_LIBRARY=/usr/lib/riscv64-linux-gnu/libpython3.8.so \
+          -DPYTHON_LIBRARY=/usr/lib/riscv64-linux-gnu/libpython3.10.so \
           -S openvino -B openvino_build
 
         cmake --build openvino_build -j$(nproc --all)
