@@ -22,31 +22,40 @@ jobs:
         sudo make linux -j$(nproc --all)
       working-directory: riscv-gnu-toolchain
 
-    - name: Install libusb
+    - name: Install dependencies
       run: |
         sudo dpkg --add-architecture riscv64
         sudo sed -i -E 's|^deb ([^ ]+) (.*)$|deb [arch=amd64] \1 \2\ndeb [arch=riscv64] http://ports.ubuntu.com/ubuntu-ports/ \2|' /etc/apt/sources.list
         sudo apt-get update
-        sudo apt-get install -y --no-install-recommends libusb-1.0-0-dev:riscv64
+        sudo apt-get install -y --no-install-recommends \
+          libusb-1.0-0-dev:riscv64 \
+          libpython3-dev:riscv64 \
+          python3-numpy \
+          cython
 
     - name: Build OpenVINO
       run: |
+        sudo sed -i -E 's|riscv64-linux-gnu/python3.8/pyconfig.h|/usr/include/riscv64-linux-gnu/python3.8/pyconfig.h|' /usr/include/python3.8/pyconfig.h
+
         cmake \
           -DCMAKE_TOOLCHAIN_FILE=$(realpath riscv64.toolchain.cmake) \
           -DLIBUSB_LIBRARY=/usr/lib/riscv64-linux-gnu/libusb-1.0.so \
           -DLIBUSB_INCLUDE_DIR=/usr/include/libusb-1.0 \
           -DTHREADING=SEQ \
           -DENABLE_OPENCV=OFF \
-          -DENABLE_PYTHON=OFF \
+          -DENABLE_PYTHON=ON \
           -DENABLE_SAMPLES=OFF \
+          -DPYTHON_INCLUDE_DIR=/usr/include/python3.8 \
+          -DPYTHON_MODULE_EXTENSION=".so" \
+          -DPYTHON_LIBRARY=/usr/lib/riscv64-linux-gnu/libpython3.8.so \
           -S openvino -B openvino_build
-        
+
         cmake --build openvino_build -j$(nproc --all)
-        cmake --install openvino_build --prefix openvino_install
-        zip openvino-2022.2-linux-riscv64.zip -r openvino_install/*
+        cmake --install openvino_build --prefix openvino-2022.2-linux-riscv64
+        tar -cvzf openvino-2022.2-linux-riscv64.tar.gz openvino-2022.2-linux-riscv64
 
     - name: Upload
       uses: actions/upload-artifact@v2
       with:
         name: "openvino_riscv64"
-        path: "openvino*.zip"
+        path: "openvino*.tar.gz"
