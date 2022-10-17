@@ -27,7 +27,7 @@ jobs:
         sudo dpkg --add-architecture riscv64
         sudo sed -i -E 's|^deb ([^ ]+) (.*)$|deb [arch=amd64] \1 \2\ndeb [arch=riscv64] http://ports.ubuntu.com/ubuntu-ports/ \2|' /etc/apt/sources.list
         sudo apt-get update
-        sudo apt-get install -y --no-install-recommends \
+        sudo apt-get install -y \
           libusb-1.0-0-dev:riscv64 \
           libpython3-dev:riscv64 \
           python3-numpy \
