@@ -31,7 +31,7 @@ jobs:
           libusb-1.0-0-dev:riscv64 \
           libpython3-dev:riscv64 \
           python3-numpy \
-          cython
+          cython3
 
     - name: Build OpenVINO
       run: |
