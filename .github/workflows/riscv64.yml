@@ -13,10 +13,10 @@ jobs:
       run: |
         git clone --recurse-submodules -j$(nproc --all) https://github.com/openvinotoolkit/openvino --depth 1 -b releases/2022/2
 
-    - name: Build toolchain
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y crossbuild-essential-riscv64
+  #  - name: Build toolchain
+  #    run: |
+  #      sudo apt-get update
+  #      sudo apt-get install -y crossbuild-essential-riscv64
     #    sudo apt-get install -y --no-install-recommends autoconf automake autotools-dev curl python3 libmpc-dev libmpfr-dev libgmp-dev gawk build-essential bison flex texinfo gperf libtool patchutils bc zlib1g-dev libexpat-dev
     #     ./configure --prefix=/opt/riscv
     #     sudo make linux -j$(nproc --all)
@@ -25,9 +25,9 @@ jobs:
     - name: Install dependencies
       run: |
         sudo dpkg --add-architecture riscv64
-        sudo sed -i -E 's|^deb ([^ ]+) (.*)$|deb [arch=amd64] \1 \2\ndeb [arch=riscv64] http://ports.ubuntu.com/ubuntu-ports/ \2|' /etc/apt/sources.list
         sudo apt-get update
-        sudo apt-get install -y \
+        sudo apt-get install -y --no-install-recommends \
+          crossbuild-essential-riscv64 \
           libusb-1.0-0-dev:riscv64 \
           libpython3-dev:riscv64 \
           python3-numpy \
