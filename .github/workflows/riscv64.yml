@@ -29,6 +29,7 @@ jobs:
         sudo apt-get install -y --no-install-recommends \
           crossbuild-essential-riscv64 \
           libusb-1.0-0-dev:riscv64 \
+          zlib1g:riscv64 \
           zlib1g-dev:riscv64 \
           libpython3-dev:riscv64 \
           python3-numpy \
