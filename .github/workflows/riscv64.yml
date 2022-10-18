@@ -34,7 +34,7 @@ jobs:
           cython3
 
         sudo sed -i -E 's|riscv64-linux-gnu/python3.10/pyconfig.h|/usr/include/riscv64-linux-gnu/python3.10/pyconfig.h|' /usr/include/python3.10/pyconfig.h
-        python3 -m pip install numpy==1.21.5
+        sudo python3 -m pip install numpy==1.21.5
 
     - name: Build OpenCV
       run: |        
