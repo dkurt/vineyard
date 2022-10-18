@@ -9,18 +9,19 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
-#     - name: Clone
-#       run: |
-#         git clone https://github.com/riscv-collab/riscv-gnu-toolchain --depth 1
-#         git clone --recurse-submodules -j$(nproc --all) https://github.com/openvinotoolkit/openvino --depth 1 -b releases/2022/2
+    - name: Clone
+      run: |
+        git clone https://github.com/riscv-collab/riscv-gnu-toolchain --depth 1
+        git clone https://github.com/opencv/opencv --depth 1
+        git clone --recurse-submodules -j$(nproc --all) https://github.com/openvinotoolkit/openvino --depth 1 -b releases/2022/2
 
-#     - name: Build toolchain
-#       run: |
-#         sudo apt-get update
-#         sudo apt-get install -y --no-install-recommends autoconf automake autotools-dev curl python3 libmpc-dev libmpfr-dev libgmp-dev gawk build-essential bison flex texinfo gperf libtool patchutils bc zlib1g-dev libexpat-dev
-#     #    ./configure --prefix=/opt/riscv
-#     #    sudo make linux -j$(nproc --all)
-#       working-directory: riscv-gnu-toolchain
+    - name: Build toolchain
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y --no-install-recommends autoconf automake autotools-dev curl python3 libmpc-dev libmpfr-dev libgmp-dev gawk build-essential bison flex texinfo gperf libtool patchutils bc zlib1g-dev libexpat-dev
+        ./configure --prefix=/opt/riscv
+        sudo make linux -j$(nproc --all)
+      working-directory: riscv-gnu-toolchain
 
     - name: Install dependencies
       run: |
@@ -33,35 +34,52 @@ jobs:
           python3-numpy \
           cython3
 
+        sudo sed -i -E 's|riscv64-linux-gnu/python3.10/pyconfig.h|/usr/include/riscv64-linux-gnu/python3.10/pyconfig.h|' /usr/include/python3.10/pyconfig.h
+
+    - name: Build OpenCV
+      run: |
+        export PATH=/opt/riscv/bin:$PATH
+        cmake .. \
+          -DCMAKE_TOOLCHAIN_FILE=$(realpath opencv/platforms/linux/riscv64-gnu.toolchain.cmake) \
+          -DCMAKE_INSTALL_PREFIX=$(realpath opencv_install) \
+          -DCMAKE_BUILD_TYPE=Release \
+          -DBUILD_LIST=core,imgcodecs,python3 \
+          -DPYTHON3_NUMPY_INCLUDE_DIRS=/usr/include/python3.10/numpy \
+          -DPYTHON3_INCLUDE_PATH=/usr/include/python3.10 \
+          -DPYTHON3_LIBRARIES=/usr/lib/riscv64-linux-gnu/libpython3.10.so \
+          -S opencv -B opencv_build
+
+        cmake --build opencv_build -j$(nproc --all)
+        cmake --install opencv_build --prefix opencv_install
+        tar -cvzf opencv_install.tar.gz opencv_install
+
+    - name: Build OpenVINO
+      run: |
+        cmake \
+          -DCMAKE_TOOLCHAIN_FILE=$(realpath riscv64.toolchain.cmake) \
+          -DLIBUSB_LIBRARY=/usr/lib/riscv64-linux-gnu/libusb-1.0.so \
+          -DLIBUSB_INCLUDE_DIR=/usr/include/libusb-1.0 \
+          -DTHREADING=SEQ \
+          -DENABLE_OPENCV=OFF \
+          -DENABLE_PYTHON=ON \
+          -DENABLE_SAMPLES=OFF \
+          -DPYTHON_INCLUDE_DIR=/usr/include/python3.10 \
+          -DPYTHON_MODULE_EXTENSION=".so" \
+          -DPYTHON_LIBRARY=/usr/lib/riscv64-linux-gnu/libpython3.10.so \
+          -S openvino -B openvino_build
+
+        cmake --build openvino_build -j$(nproc --all)
+        cmake --install openvino_build --prefix openvino-2022.2-linux-riscv64
+        tar -cvzf openvino-2022.2-linux-riscv64.tar.gz openvino-2022.2-linux-riscv64
+
     - name: Upload
       uses: actions/upload-artifact@v2
       with:
-        name: "pyconfig"
-        path: "/usr/include/riscv64-linux-gnu/python3.10/pyconfig.h"
-
-#     - name: Build OpenVINO
-#       run: |
-#         sudo sed -i -E 's|riscv64-linux-gnu/python3.10/pyconfig.h|/usr/include/riscv64-linux-gnu/python3.10/pyconfig.h|' /usr/include/python3.10/pyconfig.h
-
-#         cmake \
-#           -DCMAKE_TOOLCHAIN_FILE=$(realpath riscv64.toolchain.cmake) \
-#           -DLIBUSB_LIBRARY=/usr/lib/riscv64-linux-gnu/libusb-1.0.so \
-#           -DLIBUSB_INCLUDE_DIR=/usr/include/libusb-1.0 \
-#           -DTHREADING=SEQ \
-#           -DENABLE_OPENCV=OFF \
-#           -DENABLE_PYTHON=ON \
-#           -DENABLE_SAMPLES=OFF \
-#           -DPYTHON_INCLUDE_DIR=/usr/include/python3.10 \
-#           -DPYTHON_MODULE_EXTENSION=".so" \
-#           -DPYTHON_LIBRARY=/usr/lib/riscv64-linux-gnu/libpython3.10.so \
-#           -S openvino -B openvino_build
-
-#         cmake --build openvino_build -j$(nproc --all)
-#         cmake --install openvino_build --prefix openvino-2022.2-linux-riscv64
-#         tar -cvzf openvino-2022.2-linux-riscv64.tar.gz openvino-2022.2-linux-riscv64
-
-#     - name: Upload
-#       uses: actions/upload-artifact@v2
-#       with:
-#         name: "openvino_riscv64"
-#         path: "openvino*.tar.gz"
+        name: "openvino_riscv64"
+        path: "openvino*.tar.gz"
+        
+    - name: Upload
+      uses: actions/upload-artifact@v2
+      with:
+        name: "opencv_riscv64"
+        path: "opencv*.tar.gz"
