@@ -1,8 +1,7 @@
 name: Build for RISC-V
 
-on:
-  pull_request:
-
+on: [workflow_dispatch]
+ 
 jobs:
   build:
     runs-on: ubuntu-22.04
