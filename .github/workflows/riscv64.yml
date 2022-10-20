@@ -38,11 +38,8 @@ jobs:
 
     - name: Build OpenCV
       run: |        
-        export PATH=/opt/riscv/bin:$PATH
         cmake \
-          -DCMAKE_TOOLCHAIN_FILE=$(realpath opencv/platforms/linux/riscv64-gnu.toolchain.cmake) \
-          -DCMAKE_C_COMPILER=/opt/riscv/bin/riscv64-unknown-linux-gnu-gcc \
-          -DCMAKE_CXX_COMPILER=/opt/riscv/bin/riscv64-unknown-linux-gnu-g++ \
+          -DCMAKE_TOOLCHAIN_FILE=$(realpath opencv/platforms/linux/riscv64-gcc.toolchain.cmake) \
           -DCMAKE_INSTALL_PREFIX=$(realpath opencv_install) \
           -DCMAKE_BUILD_TYPE=Release \
           -DBUILD_LIST=core,imgcodecs,python3 \
