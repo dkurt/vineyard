@@ -1,6 +1,6 @@
 name: Build for RISC-V
 
-on: [workflow_dispatch]
+on: [workflow_dispatch, pull_request]
  
 jobs:
   build:
@@ -10,17 +10,13 @@ jobs:
 
     - name: Clone
       run: |
-        git clone https://github.com/riscv-collab/riscv-gnu-toolchain --depth 1
         git clone https://github.com/opencv/opencv --depth 1
         git clone --recurse-submodules -j$(nproc --all) https://github.com/openvinotoolkit/openvino --depth 1 -b releases/2022/2
 
     - name: Build toolchain
       run: |
         sudo apt-get update
-        sudo apt-get install -y --no-install-recommends autoconf automake autotools-dev curl python3 libmpc-dev libmpfr-dev libgmp-dev gawk build-essential bison flex texinfo gperf libtool patchutils bc zlib1g-dev libexpat-dev
-        ./configure --prefix=/opt/riscv
-        sudo make linux -j$(nproc --all)
-      working-directory: riscv-gnu-toolchain
+        sudo apt-get install -y crossbuild-essential-riscv64
 
     - name: Install dependencies
       run: |
@@ -39,7 +35,7 @@ jobs:
     - name: Build OpenCV
       run: |        
         cmake \
-          -DCMAKE_TOOLCHAIN_FILE=$(realpath opencv/platforms/linux/riscv64-gcc.toolchain.cmake) \
+          -DCMAKE_TOOLCHAIN_FILE=$(realpath opencv/platforms/linux/riscv64-gnu.toolchain.cmake) \
           -DCMAKE_INSTALL_PREFIX=$(realpath opencv_install) \
           -DCMAKE_BUILD_TYPE=Release \
           -DBUILD_LIST=core,imgcodecs,python3 \
