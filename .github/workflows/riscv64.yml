@@ -10,6 +10,7 @@ jobs:
 
     - name: Clone
       run: |
+        cmake --version
         git clone https://github.com/opencv/opencv --depth 1
         git clone --recurse-submodules -j$(nproc --all) https://github.com/openvinotoolkit/openvino --depth 1 -b releases/2022/2
 
