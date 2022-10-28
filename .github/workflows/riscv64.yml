@@ -29,11 +29,6 @@ jobs:
         python3 -m pip install numpy==1.21.5
         python3 -c "import numpy; print(numpy.__version__); print(numpy.__file__)"
 
-        wget https://github.com/Kitware/CMake/releases/download/v3.22.1/cmake-3.22.1-linux-x86_64.sh
-        chmod +x ./cmake-3.22.1-linux-x86_64.sh
-        sudo ./cmake-3.22.1-linux-x86_64.sh --skip-license --prefix=/usr/local
-        cmake --version
-
     - name: Build OpenCV
       run: |        
         cmake \
