@@ -49,7 +49,7 @@ jobs:
 
     - name: Build OpenVINO
       run: |
-        LDFLAGS="-L/usr/lib/gcc-cross/riscv64-linux-gnu/11/ -latomic"
+        LDFLAGS="-L/usr/lib/gcc-cross/riscv64-linux-gnu/11/ -latomic" \
         cmake \
           -DCMAKE_TOOLCHAIN_FILE=$(realpath riscv64.toolchain.cmake) \
           -DLIBUSB_LIBRARY=/usr/lib/riscv64-linux-gnu/libusb-1.0.so \
