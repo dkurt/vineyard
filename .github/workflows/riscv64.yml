@@ -10,17 +10,14 @@ jobs:
 
     - name: Clone
       run: |
-        cmake --version
         git clone https://github.com/opencv/opencv --depth 1
         git clone --recurse-submodules -j$(nproc --all) https://github.com/openvinotoolkit/openvino --depth 1 -b releases/2022/2
 
-    - name: Build toolchain
+    - name: Install dependencies
       run: |
         sudo apt-get update
         sudo apt-get install -y crossbuild-essential-riscv64
 
-    - name: Install dependencies
-      run: |
         sudo dpkg --add-architecture riscv64
         sudo sed -i -E 's|^deb ([^ ]+) (.*)$|deb [arch=amd64] \1 \2\ndeb [arch=riscv64] http://ports.ubuntu.com/ubuntu-ports/ \2|' /etc/apt/sources.list
         sudo apt-get update
@@ -31,6 +28,11 @@ jobs:
 
         python3 -m pip install numpy==1.21.5
         python3 -c "import numpy; print(numpy.__version__); print(numpy.__file__)"
+
+        wget https://github.com/Kitware/CMake/releases/download/v3.22.1/cmake-3.22.1-linux-x86_64.sh
+        chmod +x ./cmake-3.22.1-linux-x86_64.sh
+        sudo ./cmake-3.22.1-linux-x86_64.sh --skip-license --prefix=/usr/local
+        cmake --version
 
     - name: Build OpenCV
       run: |        
