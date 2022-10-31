@@ -15,16 +15,14 @@ jobs:
 
     - name: Install dependencies
       run: |
-        sudo apt-get update
-        sudo apt-get install -y crossbuild-essential-riscv64
-
         sudo dpkg --add-architecture riscv64
         sudo sed -i -E 's|^deb ([^ ]+) (.*)$|deb [arch=amd64] \1 \2\ndeb [arch=riscv64] http://ports.ubuntu.com/ubuntu-ports/ \2|' /etc/apt/sources.list
         sudo apt-get update
         sudo apt-get install -y --no-install-recommends \
           libusb-1.0-0-dev:riscv64 \
           libpython3-dev:riscv64 \
-          cython3
+          cython3 \
+          crossbuild-essential-riscv64
 
         python3 -m pip install numpy==1.21.5
         python3 -c "import numpy; print(numpy.__version__); print(numpy.__file__)"
