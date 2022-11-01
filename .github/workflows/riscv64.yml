@@ -48,7 +48,7 @@ jobs:
     - name: Build OpenVINO
       run: |
         cmake \
-          -DCMAKE_TOOLCHAIN_FILE=$(realpath opencv/platforms/linux/riscv64-gnu.toolchain.cmake) \
+          -DCMAKE_TOOLCHAIN_FILE=$(realpath riscv64.toolchain.cmake) \
           -DLIBUSB_LIBRARY=/usr/lib/riscv64-linux-gnu/libusb-1.0.so \
           -DLIBUSB_INCLUDE_DIR=/usr/include/libusb-1.0 \
           -DTHREADING=SEQ \
