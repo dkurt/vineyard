@@ -10,17 +10,8 @@ jobs:
 
     - name: Clone
       run: |
-        git clone https://github.com/riscv-collab/riscv-gnu-toolchain --depth 1
         git clone https://github.com/opencv/opencv --depth 1
         git clone --recurse-submodules -j$(nproc --all) https://github.com/openvinotoolkit/openvino --depth 1 -b releases/2022/2
-
-    - name: Build toolchain
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y --no-install-recommends autoconf automake autotools-dev curl python3 libmpc-dev libmpfr-dev libgmp-dev gawk build-essential bison flex texinfo gperf libtool patchutils bc zlib1g-dev libexpat-dev
-        ./configure --prefix=/opt/riscv
-        sudo make linux -j$(nproc --all)
-      working-directory: riscv-gnu-toolchain
 
     - name: Install dependencies
       run: |
@@ -30,16 +21,16 @@ jobs:
         sudo apt-get install -y --no-install-recommends \
           libusb-1.0-0-dev:riscv64 \
           libpython3-dev:riscv64 \
-          cython3
+          cython3 \
+          crossbuild-essential-riscv64
 
-        sudo sed -i -E 's|riscv64-linux-gnu/python3.10/pyconfig.h|/usr/include/riscv64-linux-gnu/python3.10/pyconfig.h|' /usr/include/python3.10/pyconfig.h
         python3 -m pip install numpy==1.21.5
         python3 -c "import numpy; print(numpy.__version__); print(numpy.__file__)"
 
     - name: Build OpenCV
       run: |        
         cmake \
-          -DCMAKE_TOOLCHAIN_FILE=$(realpath opencv/platforms/linux/riscv64-gcc.toolchain.cmake) \
+          -DCMAKE_TOOLCHAIN_FILE=$(realpath opencv/platforms/linux/riscv64-gnu.toolchain.cmake) \
           -DCMAKE_INSTALL_PREFIX=$(realpath opencv_install) \
           -DCMAKE_BUILD_TYPE=Release \
           -DBUILD_LIST=core,imgcodecs,python3 \
